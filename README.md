@@ -58,20 +58,19 @@ passos int,
 pontos int,
 data_registro timestamp default now()
 );
-
 ```
 
 🚀 Status do Projeto
 
-✔️ Captura de dados via Telegram
-✔️ Processamento automático com n8n
-✔️ Cálculo de pontuação
-✔️ Armazenamento em banco de dados
-✔️ Resposta automática ao usuário
+✔️ Captura de dados via Telegram  
+✔️ Processamento automático com n8n  
+✔️ Cálculo de pontuação  
+✔️ Armazenamento em banco de dados  
+✔️ Resposta automática ao usuário  
 
-🔜 Próximos Passos
+🔜 Próximos Passos  
 
-Implementar ranking entre usuários
-Criar sistema de desafios
-Adicionar histórico de atividades
+Implementar ranking entre usuários          
+Criar sistema de desafios  
+Adicionar histórico de atividades  
 Integrar com Google Fit
