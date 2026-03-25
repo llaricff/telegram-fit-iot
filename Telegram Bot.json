@@ -1,0 +1,137 @@
+{
+  "name": "Telegram Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "f808ae83-94a2-47d0-b6cc-5166e0e751a1",
+      "name": "Telegram Trigger",
+      "webhookId": "37284c86-bba0-4aa2-a59f-8c019d6f67a9",
+      "credentials": {
+        "telegramApi": {
+          "id": "WfoheclqEyMkTVFw",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $json.message;\nconst textoOriginal = (msg.text || \"\").trim();\n\nlet resposta = \"Comando não reconhecido.\";\nlet passos = null;\nlet pontos = null;\n\n// pega só o comando, sem o @nomedobot\nconst partes = textoOriginal.split(/\\s+/);\nconst comandoBruto = partes[0] || \"\";\nconst comando = comandoBruto.split(\"@\")[0].toLowerCase();\n\nif (comando === \"/start\") {\n  resposta = `Olá, ${msg.from.first_name}! Bem-vinda ao sistema 🚀`;\n}\n\nelse if (comando === \"/registrar\") {\n  passos = parseInt(partes[1]);\n\n  if (isNaN(passos)) {\n    resposta = \"Por favor, informe um número válido. Ex: /registrar 8000\";\n    passos = null;\n    pontos = null;\n  } else {\n    if (passos >= 10000) pontos = 10;\n    else if (passos >= 8000) pontos = 8;\n    else if (passos >= 5000) pontos = 5;\n    else pontos = 2;\n\n    resposta = `Atividade registrada ✅\n\nPassos: ${passos}\nPontos ganhos: ${pontos}`;\n  }\n}\n\nreturn [\n  {\n    json: {\n      telegram_id: msg.from.id,\n      texto_recebido: textoOriginal,\n      comando_identificado: comando,\n      passos,\n      pontos,\n      resposta\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b14c3055-ad24-4b5d-81f0-600adf3e34d0",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "chatId": "={{$node[\"Code in JavaScript\"].json[\"telegram_id\"]}}",
+        "text": "={{$node[\"Code in JavaScript\"].json[\"resposta\"]}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "038443ae-1a7d-4586-aa57-61354772f26c",
+      "name": "Send a text message",
+      "webhookId": "bc252a5f-a1cd-423b-a737-139de8e638f6",
+      "credentials": {
+        "telegramApi": {
+          "id": "WfoheclqEyMkTVFw",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO atividades (telegram_id, passos, pontos)\nVALUES ({{$json.telegram_id}}, {{$json.passos}}, {{$json.pontos}});",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        416,
+        0
+      ],
+      "id": "78e79a2c-7f4f-4b3b-8514-a9af70495e24",
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "YmEGi5Mdq94EACem",
+          "name": "Postgres account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message": {
+      "main": [
+        []
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e32a027f-160a-46e5-bffd-b0dee16a680f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "228c8e29d4fc910c0df31e5d48eb20e0c465a6f929a769e208dcd2b53701c915"
+  },
+  "id": "iM2RRDRFfD2h37WG",
+  "tags": []
+}
